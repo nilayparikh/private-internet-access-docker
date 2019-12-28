@@ -54,7 +54,7 @@ RUN apk add -q --progress --no-cache --update openvpn wget ca-certificates iptab
     unzip -q openvpn-strong-tcp.zip -d /openvpn/tcp-strong && \
     apk del -q --progress --purge unzip && \
     rm -rf /*.zip /var/cache/apk/* /etc/tinyproxy/tinyproxy.conf && \
-    adduser nonrootuser -D -H --uid 1000 && \
+    adduser nonrootuser -D -H --uid 1000
 COPY tinyproxy.conf /etc/tinyproxy/tinyproxy.conf
 COPY shadowsocks.json /etc/shadowsocks.json
 COPY entrypoint.sh healthcheck.sh portforward.sh /
