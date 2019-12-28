@@ -47,7 +47,6 @@ printf " =========================================\n"
 printf " == by github.com/qdm12 - Quentin McGaw ==\n\n"
 
 printf "OpenVPN version: $(openvpn --version | head -n 1 | grep -oE "OpenVPN [0-9\.]* " | cut -d" " -f2)\n"
-printf "Unbound version: $(unbound -h | grep "Version" | cut -d" " -f2)\n"
 printf "Iptables version: $(iptables --version | cut -d" " -f2)\n"
 printf "TinyProxy version: $(tinyproxy -v | cut -d" " -f2)\n"
 printf "ShadowSocks version: $(ss-server --help | head -n 2 | tail -n 1 | cut -d" " -f 2)\n"
@@ -163,11 +162,6 @@ printf " * Protocol: $PROTOCOL\n"
 printf " * Running without root: $NONROOT\n"
 printf "DNS over TLS:\n"
 printf " * Activated: $DOT\n"
-if [ "$DOT" = "on" ]; then
-  printf " * Malicious hostnames DNS blocking: $BLOCK_MALICIOUS\n"
-  printf " * NSA related DNS blocking: $BLOCK_NSA\n"
-  printf " * Unblocked hostnames: $UNBLOCK\n"
-fi
 printf "Local network parameters:\n"
 printf " * Extra subnets: $EXTRA_SUBNETS\n"
 printf " * Tinyproxy HTTP proxy: $TINYPROXY\n"
@@ -217,45 +211,6 @@ if [ "$(cat /dev/net/tun 2>&1 /dev/null)" != "cat: read error: File descriptor i
   mknod /dev/net/tun c 10 200
   exitOnError $?
   chmod 0666 /dev/net/tun
-  printf "DONE\n"
-fi
-
-############################################
-# BLOCKING MALICIOUS HOSTNAMES AND IPs WITH UNBOUND
-############################################
-if [ "$DOT" == "on" ]; then
-  rm -f /etc/unbound/blocks-malicious.conf
-  if [ "$BLOCK_MALICIOUS" = "on" ]; then
-    tar -xjf /etc/unbound/blocks-malicious.bz2 -C /etc/unbound/
-    printf "[INFO] $(cat /etc/unbound/blocks-malicious.conf | grep "local-zone" | wc -l ) malicious hostnames and $(cat /etc/unbound/blocks-malicious.conf | grep "private-address" | wc -l) malicious IP addresses blacklisted\n"
-  else
-    echo "" > /etc/unbound/blocks-malicious.conf
-  fi
-  if [ "$BLOCK_NSA" = "on" ]; then
-    tar -xjf /etc/unbound/blocks-nsa.bz2 -C /etc/unbound/
-    printf "[INFO] $(cat /etc/unbound/blocks-nsa.conf | grep "local-zone" | wc -l ) NSA hostnames blacklisted\n"
-    cat /etc/unbound/blocks-nsa.conf >> /etc/unbound/blocks-malicious.conf
-    rm /etc/unbound/blocks-nsa.conf
-    sort -u -o /etc/unbound/blocks-malicious.conf /etc/unbound/blocks-malicious.conf
-  fi
-  for hostname in ${UNBLOCK//,/ }
-  do
-    printf "[INFO] Unblocking hostname $hostname\n"
-    sed -i "/$hostname/d" /etc/unbound/blocks-malicious.conf
-  done
-fi
-
-############################################
-# SETTING DNS OVER TLS TO 1.1.1.1 / 1.0.0.1
-############################################
-if [ "$DOT" == "on" ]; then
-  printf "[INFO] Launching Unbound to connect to Cloudflare DNS 1.1.1.1 over TLS..."
-  unbound
-  exitOnError $?
-  printf "DONE\n"
-  printf "[INFO] Changing DNS to localhost..."
-  printf "`sed '/^nameserver /d' /etc/resolv.conf`\nnameserver 127.0.0.1\n" > /etc/resolv.conf
-  exitOnError $?
   printf "DONE\n"
 fi
 
