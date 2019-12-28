@@ -44,7 +44,6 @@ printf " =========================================\n"
 printf " ============= PIA CONTAINER =============\n"
 printf " =========================================\n"
 printf " =========================================\n"
-printf " == by github.com/qdm12 - Quentin McGaw ==\n\n"
 
 printf "OpenVPN version: $(openvpn --version | head -n 1 | grep -oE "OpenVPN [0-9\.]* " | cut -d" " -f2)\n"
 printf "Iptables version: $(iptables --version | cut -d" " -f2)\n"
