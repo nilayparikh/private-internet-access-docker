@@ -310,73 +310,73 @@ printf "$VPN_DEVICE\n"
 ############################################
 # FIREWALL
 ############################################
-printf "[INFO] Setting firewall\n"
-printf " * Blocking everyting\n"
-printf "   * Deleting all iptables rules..."
-iptables --flush
-exitOnError $?
-iptables --delete-chain
-exitOnError $?
-iptables -t nat --flush
-exitOnError $?
-iptables -t nat --delete-chain
-exitOnError $?
-printf "DONE\n"
-printf "   * Block input traffic..."
-iptables -P INPUT DROP
-exitOnError $?
-printf "DONE\n"
-printf "   * Block output traffic..."
-iptables -F OUTPUT
-exitOnError $?
-iptables -P OUTPUT DROP
-exitOnError $?
-printf "DONE\n"
-printf "   * Block forward traffic..."
-iptables -P FORWARD DROP
-exitOnError $?
-printf "DONE\n"
+# printf "[INFO] Setting firewall\n"
+# printf " * Blocking everyting\n"
+# printf "   * Deleting all iptables rules..."
+# iptables --flush
+# exitOnError $?
+# iptables --delete-chain
+# exitOnError $?
+# iptables -t nat --flush
+# exitOnError $?
+# iptables -t nat --delete-chain
+# exitOnError $?
+# printf "DONE\n"
+# printf "   * Block input traffic..."
+# iptables -P INPUT DROP
+# exitOnError $?
+# printf "DONE\n"
+# printf "   * Block output traffic..."
+# iptables -F OUTPUT
+# exitOnError $?
+# iptables -P OUTPUT DROP
+# exitOnError $?
+# printf "DONE\n"
+# printf "   * Block forward traffic..."
+# iptables -P FORWARD DROP
+# exitOnError $?
+# printf "DONE\n"
 
-printf " * Creating general rules\n"
-printf "   * Accept established and related input and output traffic..."
-iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-exitOnError $?
-iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-exitOnError $?
-printf "DONE\n"
-printf "   * Accept local loopback input and output traffic..."
-iptables -A OUTPUT -o lo -j ACCEPT
-exitOnError $?
-iptables -A INPUT -i lo -j ACCEPT
-exitOnError $?
-printf "DONE\n"
+# printf " * Creating general rules\n"
+# printf "   * Accept established and related input and output traffic..."
+# iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+# exitOnError $?
+# iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+# exitOnError $?
+# printf "DONE\n"
+# printf "   * Accept local loopback input and output traffic..."
+# iptables -A OUTPUT -o lo -j ACCEPT
+# exitOnError $?
+# iptables -A INPUT -i lo -j ACCEPT
+# exitOnError $?
+# printf "DONE\n"
 
-printf " * Creating VPN rules\n"
-for ip in $VPNIPS; do
-  printf "   * Accept output traffic to VPN server $ip through $INTERFACE, port $PROTOCOL $PORT..."
-  iptables -A OUTPUT -d $ip -o $INTERFACE -p $PROTOCOL -m $PROTOCOL --dport $PORT -j ACCEPT
-  exitOnError $?
-  printf "DONE\n"
-done
-printf "   * Accept all output traffic through $VPN_DEVICE..."
-iptables -A OUTPUT -o $VPN_DEVICE -j ACCEPT
-exitOnError $?
-printf "DONE\n"
+# printf " * Creating VPN rules\n"
+# for ip in $VPNIPS; do
+#   printf "   * Accept output traffic to VPN server $ip through $INTERFACE, port $PROTOCOL $PORT..."
+#   iptables -A OUTPUT -d $ip -o $INTERFACE -p $PROTOCOL -m $PROTOCOL --dport $PORT -j ACCEPT
+#   exitOnError $?
+#   printf "DONE\n"
+# done
+# printf "   * Accept all output traffic through $VPN_DEVICE..."
+# iptables -A OUTPUT -o $VPN_DEVICE -j ACCEPT
+# exitOnError $?
+# printf "DONE\n"
 
-printf " * Creating local subnet rules\n"
-printf "   * Accept input and output traffic to and from $SUBNET..."
-iptables -A INPUT -s $SUBNET -d $SUBNET -j ACCEPT
-iptables -A OUTPUT -s $SUBNET -d $SUBNET -j ACCEPT
-printf "DONE\n"
-for EXTRASUBNET in ${EXTRA_SUBNETS//,/ }
-do
-  printf "   * Accept input traffic through $INTERFACE from $EXTRASUBNET to $SUBNET..."
-  iptables -A INPUT -i $INTERFACE -s $EXTRASUBNET -d $SUBNET -j ACCEPT
-  exitOnError $?
-  printf "DONE\n"
-  # iptables -A OUTPUT -d $EXTRASUBNET -j ACCEPT
-  # iptables -A OUTPUT -o $INTERFACE -s $SUBNET -d $EXTRASUBNET -j ACCEPT
-done
+# printf " * Creating local subnet rules\n"
+# printf "   * Accept input and output traffic to and from $SUBNET..."
+# iptables -A INPUT -s $SUBNET -d $SUBNET -j ACCEPT
+# iptables -A OUTPUT -s $SUBNET -d $SUBNET -j ACCEPT
+# printf "DONE\n"
+# for EXTRASUBNET in ${EXTRA_SUBNETS//,/ }
+# do
+#   printf "   * Accept input traffic through $INTERFACE from $EXTRASUBNET to $SUBNET..."
+#   iptables -A INPUT -i $INTERFACE -s $EXTRASUBNET -d $SUBNET -j ACCEPT
+#   exitOnError $?
+#   printf "DONE\n"
+#   # iptables -A OUTPUT -d $EXTRASUBNET -j ACCEPT
+#   # iptables -A OUTPUT -o $INTERFACE -s $SUBNET -d $EXTRASUBNET -j ACCEPT
+# done
 
 ############################################
 # TINYPROXY LAUNCH

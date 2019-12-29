@@ -40,7 +40,7 @@ ENV USER= \
 ENTRYPOINT /entrypoint.sh
 EXPOSE 8888/tcp 8388/tcp 8388/udp
 HEALTHCHECK --interval=3m --timeout=3s --start-period=20s --retries=1 CMD /healthcheck.sh
-RUN apk add -q --progress --no-cache --update openvpn wget ca-certificates iptables unbound unzip tinyproxy jq tzdata && \
+RUN apk add -q --progress --no-cache --update openvpn wget ca-certificates iptables unzip tinyproxy jq tzdata && \
     echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
     apk add -q --progress --no-cache --update shadowsocks-libev && \
     wget -q https://www.privateinternetaccess.com/openvpn/openvpn.zip \
@@ -53,16 +53,12 @@ RUN apk add -q --progress --no-cache --update openvpn wget ca-certificates iptab
     unzip -q openvpn-tcp.zip -d /openvpn/tcp-normal && \
     unzip -q openvpn-strong-tcp.zip -d /openvpn/tcp-strong && \
     apk del -q --progress --purge unzip && \
-    rm -rf /*.zip /var/cache/apk/* /etc/unbound/* /usr/sbin/unbound-anchor /usr/sbin/unbound-checkconf /usr/sbin/unbound-control /usr/sbin/unbound-control-setup /usr/sbin/unbound-host /etc/tinyproxy/tinyproxy.conf && \
-    adduser nonrootuser -D -H --uid 1000 && \
-    wget -q https://www.internic.net/domain/named.root -O /etc/unbound/root.hints && \
-    wget -q https://raw.githubusercontent.com/qdm12/files/master/root.key.updated -O /etc/unbound/root.key
-COPY unbound.conf /etc/unbound/unbound.conf
+    rm -rf /*.zip /var/cache/apk/* /etc/tinyproxy/tinyproxy.conf && \
+    adduser nonrootuser -D -H --uid 1000
 COPY tinyproxy.conf /etc/tinyproxy/tinyproxy.conf
 COPY shadowsocks.json /etc/shadowsocks.json
 COPY entrypoint.sh healthcheck.sh portforward.sh /
-RUN chown nonrootuser -R /etc/unbound /etc/tinyproxy && \
-    chmod 700 /etc/unbound /etc/tinyproxy && \
-    chmod 600 /etc/unbound/unbound.conf /etc/tinyproxy/tinyproxy.conf /etc/shadowsocks.json && \
-    chmod 500 /entrypoint.sh /healthcheck.sh /portforward.sh && \
-    chmod 400 /etc/unbound/root.hints /etc/unbound/root.key
+RUN chown nonrootuser -R /etc/tinyproxy && \
+    chmod 700 /etc/tinyproxy && \
+    chmod 600 /etc/tinyproxy/tinyproxy.conf /etc/shadowsocks.json && \
+    chmod 500 /entrypoint.sh /healthcheck.sh /portforward.sh
